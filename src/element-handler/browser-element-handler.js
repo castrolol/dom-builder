@@ -59,15 +59,16 @@ BrowserElementHandler.prototype.createFragment = function(){
 BrowserElementHandler.prototype.replace = function(element){
 	var children = element.childNodes;
 	
-	children.forEach(function(child){
+	for(var i; i < children.length; i++){
+		var child = children[i];
 		element.removeChild(child);
-	});
+	}
 
 	var parent = element.parentElement;
 
 	return {
 		by: function(newElement){
-			parent.replaceChild(element, newElement);
+			parent.replaceChild(newElement, element);
 		}
 	};
 };

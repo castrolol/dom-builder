@@ -18,16 +18,16 @@ var behaviours = {
 	begin: function(DomNode){
 		return function(element){
 			var childNode = new DomNode(element);
-			childNode .parent = this;
-			this.nodes.push(childNode);
+			childNode.parent = this;
+			this.children.push(childNode);
 			return childNode ;
 		};
 	},
 	child: function(DomNode){
 		return function(element, children, attrs){
 			var childNode = new DomNode(element, children, attrs);
-			childNode .parent = this;
-			this.nodes.push(childNode);
+			childNode.parent = this;
+			this.children.push(childNode);
 			return this;
 		};
 	},

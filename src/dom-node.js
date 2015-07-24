@@ -72,9 +72,10 @@ DomNode.prototype.buildOut = function() {
 };
 
 DomNode.prototype.update = function(){
- 
+ 	var ref = this.ref;
+ 	this.ref = null;
 	elementHandler
-		.replace(this.ref)
+		.replace(ref)
 		.by(this.buildOut()); 
 };
 
