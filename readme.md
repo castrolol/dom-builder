@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/castrolol/dom-builder.svg)](https://travis-ci.org/castrolol/dom-builder)
+
 # DOM Builder
 ### A VanillaJS DOM Handler 
 
