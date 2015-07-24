@@ -5,7 +5,8 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "dist": "NODE_ENV=production gulp dist"
+    "dist": "NODE_ENV=production gulp dist",
+    "test": "gulp test"
   },
   "devDependencies": {
     "browserify": "^11.0.0",

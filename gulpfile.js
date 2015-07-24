@@ -22,11 +22,11 @@ function browserifyCode(debug){
         .bundle();        
 }
 
-gulp.task("test", function(){
+gulp.task("test", ["js-hint"], function(){
 
     return gulp.src("./test/**/*.js")
             .pipe(mocha());
-            
+
 });
 
 gulp.task("js-hint", function(){
