@@ -45,7 +45,7 @@ this code will be generate a DOM-Tree like bellow
 
 ### Update Node
 
-The nodes can be updated, if you change any proprety of a node call de ```update``` method
+The nodes can be updated, if you change some proprety of node you could ```update``` him
 
 ```js
     domNode.update(); //will update the node, whitout update the children
