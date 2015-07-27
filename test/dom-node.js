@@ -117,7 +117,7 @@ describe('Dom Node', function(){
 
 	});
 
-	describe("#attr", function(){
+	describe("#attr - add a set of attributes to element", function(){
 
 		it("setted attrs without attrs passed in constructor", function(){
 
@@ -143,7 +143,7 @@ describe('Dom Node', function(){
 
 			expect(domNode.attrs).to.have.property("data-text", 'my cat code in malbouge');
 			expect(domNode.attrs).to.have.property('date-title', 'a some title');
-
+			expect(domNode.children).to.be.empty;
 
 		});
 
@@ -166,7 +166,7 @@ describe('Dom Node', function(){
 
 	});
 
-	describe("#normalizeChildren", function(){
+	describe("#normalizeChildren - normalize the children to DomNode", function(){
 
 	
 		it("need to normalize strings to #text elements", function(){
@@ -185,7 +185,7 @@ describe('Dom Node', function(){
 		});
 	});
 
-	describe("#buildOut", function(){
+	describe("#buildOut - build out the element and children", function(){
 	
 		jsdom();
 		var TestElementHandler = require("./fixture/test-element-handler");
@@ -231,15 +231,178 @@ describe('Dom Node', function(){
 
 			var domNode = new DomNode("div", "hello, i'm in a div!");
 
-			var result = domNode.buildOut();
+			domNode.buildOut();
+
+			expect(domNode.ref.nodeName).eql('DIV');
+			expect(domNode.ref.childNodes).to.have.length(1);
+			expect(domNode.ref.childNodes[0].nodeName).eql('#text');
+			expect(domNode.ref.childNodes[0].textContent).eql("hello, i'm in a div!");
+			expect(domNode.ref.outerHTML).eql("<div>hello, i'm in a div!</div>");			
+
+		});
+
+
+		it("need to build with a another DomNode as child", function(){
+
+			var domNode = new DomNode("span", { "data-item": "check the spans" });
+
+			var domContainer = new DomNode('div', domNode);
+
+			var result = domContainer.buildOut();
 
 			expect(result.nodeName).eql('DIV');
 			expect(result.childNodes).to.have.length(1);
-			expect(result.childNodes[0].nodeName).eql('#text');
-			expect(result.childNodes[0].textContent).eql("hello, i'm in a div!");
-			expect(result.outerHTML).eql("<div>hello, i'm in a div!</div>");			
+			expect(result.childNodes[0].nodeName).eql('SPAN');			
+			expect(result.outerHTML).eql('<div><span data-item="check the spans"></span></div>');	
 
 		});
+	});
+
+	describe("#update - update the element reference", function(){
+	
+		jsdom();
+		var TestElementHandler = require("./fixture/test-element-handler");
+				
+		it("the flag '_updateNeeded' change when a property 'element' is changed", function(){
+
+			var domNode = new DomNode("span", { "data-item": "I'm a span" });
+
+			var domContainer = new DomNode('div', domNode);
+
+			expect(domNode._updateNeeded).to.be.true;
+
+			domContainer.buildOut();
+
+			expect(domNode._updateNeeded).to.be.false;
+
+			domNode.element = "h1";
+
+			expect(domNode._updateNeeded).to.be.true;
+
+		});
+
+		it("the flag '_updateNeeded' change when a property 'attrs' is changed", function(){
+
+			var domNode = new DomNode("span", { "data-item": "I'm a span" });
+ 
+			expect(domNode._updateNeeded).to.be.true;
+
+			domNode.buildOut();
+
+			expect(domNode._updateNeeded).to.be.false;
+
+			domNode.attrs = { 'data-test' : 'tests are awesome'} ;
+
+			expect(domNode._updateNeeded).to.be.true;
+ 
+		});
+
+
+		it("the flag '_updateNeeded' change when a property 'children' is changed", function(){
+
+			var domNode = new DomNode("span", { "data-item": "I'm a span" });
+ 
+			expect(domNode._updateNeeded).to.be.true;
+
+			domNode.buildOut();
+
+			expect(domNode._updateNeeded).to.be.false;
+
+			domNode.children = [new DomNode("#text", "Hello World!")];
+
+			expect(domNode._updateNeeded).to.be.true;
+
+		});
+
+		it("the element need to be updated", function(){
+		
+
+			var domNode = new DomNode("span", { "data-item": "I'm a span" });
+ 			var domContainer = new DomNode('div', domNode);
+
+ 			domContainer.buildOut();
+
+			expect(domNode.ref.nodeName).equal('SPAN');
+			expect(domNode.ref.getAttribute("data-item")).equal("I'm a span");
+
+			domNode.attr({ "data-item": "am I a span?" })
+
+			expect(domNode.ref.getAttribute("data-item")).not.equal("am I a span?");
+
+
+			domNode.update();
+
+			expect(domNode.ref.getAttribute("data-item")).equal("am I a span?");
+
+
+		});
+
+		it("the element need to be updated only, keeping the children references", function(){
+			
+			var domNodeChild = new DomNode("i", "i'm a child");
+
+			var domNode = new DomNode("span", domNodeChild, { "data-item": "I'm a span" });
+			
+			var domContainer = new DomNode('div', domNode);
+
+
+			domContainer.buildOut();
+
+			var childReference = domNodeChild.ref;
+			var nodeReference = domNode.ref;
+
+			expect(domNode.ref.nodeName).equal('SPAN');
+			expect(domNode.ref.getAttribute("data-item")).equal("I'm a span");
+
+			domNode.attr({ "data-item": "am I a span?" })
+
+			expect(domNode.ref.getAttribute("data-item")).not.equal("am I a span?");
+
+
+			domNode.update();
+
+			expect(domNode.ref).not.to.equal(nodeReference);
+			expect(domNodeChild.ref).to.equal(childReference);
+			expect(domNode.ref.getAttribute("data-item")).equal("am I a span?");
+
+
+		});
+
+				it("the element need to be updated only, changing the children references if it's changed", function(){
+			
+			var domNodeChild = new DomNode("i", "i'm a child");
+
+			var domNode = new DomNode("span", domNodeChild, { "data-item": "I'm a span" });
+			
+			var domContainer = new DomNode('div', domNode);
+
+
+			domContainer.buildOut();
+
+			var childReference = domNodeChild.ref;
+			var nodeReference = domNode.ref;
+
+			domNodeChild.element = "b";
+
+			expect(domNode.ref.nodeName).equal('SPAN');
+			expect(domNode.ref.getAttribute("data-item")).equal("I'm a span");
+
+			domNode.attr({ "data-item": "am I a span?" })
+
+			expect(domNode.ref.getAttribute("data-item")).not.equal("am I a span?");
+
+
+			domNode.update();
+
+			expect(domNode.ref).not.to.equal(nodeReference);
+			expect(domNodeChild.ref).not.to.equal(childReference);
+			expect(domNode.ref.getAttribute("data-item")).equal("am I a span?");
+
+
+		});
+
+
+
 	});
 
 });

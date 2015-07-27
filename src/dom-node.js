@@ -1,13 +1,26 @@
 var elementHandler = require("./element-handler");
 var DomNodePipeMixin = require("./dom-node-pipe-mixin");
 
-
+function observeProperty(parent, name){
+	var value = parent[name];
+	delete parent[name];
+	Object.defineProperty(parent, name, {
+		get: function(){
+			return value;
+		},
+		set: function(v){
+			value = v;
+			this._updateNeeded = true;
+		}
+	});
+}
 
 function DomNode(element, children, attrs){
 
 	if(typeof attrs === "undefined" ){
 		if( (typeof children === "string" || children instanceof DomNode || children instanceof Array ) === false ){
 			attrs = children;
+			children = [];
 		}
 	}
 
@@ -20,9 +33,14 @@ function DomNode(element, children, attrs){
 	this.children = children || [];
 	this.attrs = attrs || {}; 
 	this.parent = null;
-	this.normalizeChildren();
-	DomNodePipeMixin.apply(this, DomNode);		
+	this._updateNeeded = true;
+	this.normalizeChildren();	
+	DomNodePipeMixin.apply(this, DomNode);	
 
+	observeProperty(this, "element");
+	observeProperty(this, "parent");
+	observeProperty(this, "attrs");
+	observeProperty(this, "children");
 }
 
 DomNode.prototype.normalizeChildren = function(){
@@ -33,18 +51,20 @@ DomNode.prototype.normalizeChildren = function(){
 		}
 		return child;
 	}.bind(this));	
+	this._updateNeeded = true;
 };
 
 DomNode.prototype.attr = function (attrs) {
 	for(var attr in attrs){
 		this.attrs[attr] = attrs[attr];
 	}
+	this._updateNeeded = true;
 	return this;
 };
    
 DomNode.prototype.buildOut = function() {
 
-	if("ref" in this && this.ref !== null){
+	if("ref" in this && this.ref !== null && !this._updateNeeded){
 		return this.ref;
 	}
 
@@ -67,7 +87,7 @@ DomNode.prototype.buildOut = function() {
 	}
 	
 	this.ref = buildedNode;
-
+	this._updateNeeded = false;
 	return buildedNode;
 };
 

@@ -11,6 +11,7 @@
   "devDependencies": {
     "browserify": "^11.0.0",
     "chai": "^3.2.0",
+    "codecov.io": "^0.1.5",
     "gulp": "^3.9.0",
     "gulp-jshint": "^1.11.2",
     "gulp-mocha": "^2.1.3",
