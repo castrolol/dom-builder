@@ -169,7 +169,7 @@ describe('Dom Node', function(){
 	describe("#normalizeChildren - normalize the children to DomNode", function(){
 
 	
-		it("need to normalize strings to #text elements", function(){
+		it("must to normalize strings to #text elements", function(){
 
 			var domNode = new DomNode("span");
 
@@ -191,7 +191,7 @@ describe('Dom Node', function(){
 		var TestElementHandler = require("./fixture/test-element-handler");
 	
 
-		it("need to invoke elementHandler#createElement when build out, to child first and after to parent", function(){
+		it("must to invoke elementHandler#createElement when build out, to child first and after to parent", function(){
 			var testElementHandler =  new TestElementHandler();
 
 			var resultExpected = {};
@@ -225,7 +225,7 @@ describe('Dom Node', function(){
 			expect(result).to.equal(resultExpected);
 		});
 
-		it("need to create a HTMLElement div for DomNode with element 'div' ", function(){
+		it("must to create a HTMLElement div for DomNode with element 'div' ", function(){
 
 			elementHandler.setHandler(); //reseting
 
@@ -242,7 +242,7 @@ describe('Dom Node', function(){
 		});
 
 
-		it("need to build with a another DomNode as child", function(){
+		it("must to build with a another DomNode as child", function(){
 
 			var domNode = new DomNode("span", { "data-item": "check the spans" });
 
@@ -256,65 +256,82 @@ describe('Dom Node', function(){
 			expect(result.outerHTML).eql('<div><span data-item="check the spans"></span></div>');	
 
 		});
+
+		it("should keep the reference when the DomNode is untouched", function(){
+
+			var domNode = new DomNode("span", { "data-item": "check the spans" });
+		
+
+			var result = domNode.buildOut();
+			var reference = domNode.ref;
+
+			domNode.buildOut();
+
+			expect(reference).to.equal(domNode.ref);			
+
+		});
 	});
 
 	describe("#update - update the element reference", function(){
-	
-		jsdom();
-		var TestElementHandler = require("./fixture/test-element-handler");
-				
-		it("the flag '_updateNeeded' change when a property 'element' is changed", function(){
+	jsdom();
+			var TestElementHandler = require("./fixture/test-element-handler");
+			
+		describe("the flag '_updateNeeded' change when ...", function(){
 
-			var domNode = new DomNode("span", { "data-item": "I'm a span" });
+			it("... the property 'element' is changed", function(){
 
-			var domContainer = new DomNode('div', domNode);
+				var domNode = new DomNode("span", { "data-item": "I'm a span" });
 
-			expect(domNode._updateNeeded).to.be.true;
+				var domContainer = new DomNode('div', domNode);
 
-			domContainer.buildOut();
+				expect(domNode._updateNeeded).to.be.true;
 
-			expect(domNode._updateNeeded).to.be.false;
+				domContainer.buildOut();
 
-			domNode.element = "h1";
+				expect(domNode._updateNeeded).to.be.false;
 
-			expect(domNode._updateNeeded).to.be.true;
+				domNode.element = "h1";
+
+				expect(domNode._updateNeeded).to.be.true;
+
+			});
+
+			it("... the property 'attrs' is changed", function(){
+
+				var domNode = new DomNode("span", { "data-item": "I'm a span" });
+	 
+				expect(domNode._updateNeeded).to.be.true;
+
+				domNode.buildOut();
+
+				expect(domNode._updateNeeded).to.be.false;
+
+				domNode.attrs = { 'data-test' : 'tests are awesome'} ;
+
+				expect(domNode._updateNeeded).to.be.true;
+	 
+			});
+
+
+			it("... the property 'children' is changed", function(){
+
+				var domNode = new DomNode("span", { "data-item": "I'm a span" });
+	 
+				expect(domNode._updateNeeded).to.be.true;
+
+				domNode.buildOut();
+
+				expect(domNode._updateNeeded).to.be.false;
+
+				domNode.children = [new DomNode("#text", "Hello World!")];
+
+				expect(domNode._updateNeeded).to.be.true;
+
+			});
 
 		});
-
-		it("the flag '_updateNeeded' change when a property 'attrs' is changed", function(){
-
-			var domNode = new DomNode("span", { "data-item": "I'm a span" });
  
-			expect(domNode._updateNeeded).to.be.true;
-
-			domNode.buildOut();
-
-			expect(domNode._updateNeeded).to.be.false;
-
-			domNode.attrs = { 'data-test' : 'tests are awesome'} ;
-
-			expect(domNode._updateNeeded).to.be.true;
- 
-		});
-
-
-		it("the flag '_updateNeeded' change when a property 'children' is changed", function(){
-
-			var domNode = new DomNode("span", { "data-item": "I'm a span" });
- 
-			expect(domNode._updateNeeded).to.be.true;
-
-			domNode.buildOut();
-
-			expect(domNode._updateNeeded).to.be.false;
-
-			domNode.children = [new DomNode("#text", "Hello World!")];
-
-			expect(domNode._updateNeeded).to.be.true;
-
-		});
-
-		it("the element need to be updated", function(){
+		it("It must be updated the element's reference", function(){
 		
 
 			var domNode = new DomNode("span", { "data-item": "I'm a span" });
@@ -337,7 +354,7 @@ describe('Dom Node', function(){
 
 		});
 
-		it("the element need to be updated only, keeping the children references", function(){
+		it("It must be updated only the element's reference , keeping the children", function(){
 			
 			var domNodeChild = new DomNode("i", "i'm a child");
 
@@ -368,7 +385,7 @@ describe('Dom Node', function(){
 
 		});
 
-				it("the element need to be updated only, changing the children references if it's changed", function(){
+		it("It must be updated only the element's reference , updating the children when it necessary", function(){
 			
 			var domNodeChild = new DomNode("i", "i'm a child");
 

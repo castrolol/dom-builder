@@ -6,15 +6,20 @@ function DomBuilder(){
 	
 	this.children = [];
 	DomNodePipeMixin.apply(this, DomNode);
+	this.elementHandler = elementHandler;
 }
 
 DomBuilder.prototype.setHandler = function(handler){
 	this.elementHandler.setHandler(handler);
 };
 
+DomBuilder.setHandler = function(handler){
+	elementHandler.setHandler(handler);
+};
+
 DomBuilder.prototype.resolve = function(){
 
-	var documentFragment = elementHandler.createFragment();
+	var documentFragment = this.elementHandler.createFragment();
 
 	this.children.forEach(function(node){
 		var buildedNode = node.buildOut();
